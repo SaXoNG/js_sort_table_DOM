@@ -1,44 +1,48 @@
 'use strict';
 
-const columnHeaders = Array.from(document.querySelector('tr').children);
+const table = document.querySelector('tbody');
+const columns = Array.from(document.querySelectorAll('thead th'));
 
-for (let i = 0; i < columnHeaders.length; i++) {
-  columnHeaders[i].addEventListener('click', () => {
-    const column = Array.from(document.querySelector('tbody').children);
-    const unsortedList = [];
+for (let i = 0; i < columns.length; i++) {
+  columns[i].addEventListener('click', () => {
+    const bodyTrs = Array.from(document.querySelectorAll('tbody tr'));
+    const sortedTrs = bodyTrs.sort((firstItem, secondItem) => {
+      const firstText = firstItem.children[i].textContent;
+      const secondText = secondItem.children[i].textContent;
 
-    for (let h = 0; h < column.length; h++) {
-      unsortedList.push(column[h].children[i].textContent);
-    }
+      if (firstText.includes('$')) {
+        const firstSalary = formatSalary(firstText);
+        const secondSalary = formatSalary(secondText);
 
-    const sortedList = unsortedList.sort();
+        return compareSalary(firstSalary, secondSalary);
+      }
 
-    for (let j = 0; j < column.length; j++) {
-      column[j].children[i].textContent = sortedList[j];
-    }
+      return firstText.localeCompare(secondText);
+    });
+
+    table.innerHTML = '';
+    sortedTrs.forEach((tr) => table.append(tr));
   });
 }
 
-// const nativeList = document.querySelector('ul');
+function formatSalary(string) {
+  let result = '';
 
-// console.log(nativeList)
+  for (const ch of string) {
+    if ('0123456789'.includes(ch)) {
+      result += ch;
+    }
+  }
 
-// function getEmployees(list) {
-//   return Array.from(list).map((item) => ({
-//     element: item,
-//     salary: formatSalary(item.dataset.salary),
-//   }));
-// }
+  return result;
+}
 
-// function sortList(employees) {
-//   return employees.sort((a, b) => b.salary - a.salary);
-// }
+function compareSalary(a, b) {
+  if (a - b > 0) {
+    return 1;
+  } else if (a - b < 0) {
+    return -1;
+  }
 
-// function formatSalary(salary) {
-//   return Number(salary.replace(/[$,]/g, ''));
-// }
-
-// const sortedEmployees = sortList(getEmployees(nativeList.children));
-
-// nativeList.innerHTML = '';
-// sortedEmployees.forEach((employee) => nativeList.appendChild(employee.element));
+  return 0;
+}
